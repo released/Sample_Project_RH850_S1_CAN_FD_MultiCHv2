@@ -12,6 +12,8 @@
 
 // #define ENABLE_TDC
 
+#define ENABLE_COMPLEX_LOG
+
 // #define CAN_USE_RX_RULE
 #define CAN_RX_POLLING
 // #define CAN_RX_INTERRUPT
@@ -536,6 +538,24 @@ typedef struct _can_bus_global_variable_t
 
 }CAN_BUS_GLOBAL_VARIABLE_T;
 
+typedef struct _can_bus_parameter_t
+{
+    CAN_CHANNEL_SEL_e CAN_CH;
+    CAN_FD_MODE_e CAN_MODE;
+    const CAN_RX_FIFO_BUFER_NUMBER_e CAN_RX_FIFO_BUFFER_NUM;
+
+    CAN_BIT_TIME_NBRP_SEL_e NBRP;           // NBRP[9:0] Bits 
+    CAN_BIT_TIME_NTSEG1_SEL_e NTSEG1;       // NTSEG1[6:0] Bits
+    CAN_BIT_TIME_NTSEG2_SEL_e NTSEG2;       // NTSEG2[4:0] Bits
+    CAN_BIT_TIME_NSJW_SEL_e NSJW;           // NSJW[4:0] Bits
+
+    CAN_BIT_TIME_DBRP_SEL_e DBRP;           // DBRP[7:0] Bits 
+    CAN_BIT_TIME_DTSEG1_SEL_e DTSEG1;       // DTSEG1[3:0] Bits
+    CAN_BIT_TIME_DTSEG2_SEL_e DTSEG2;       // DTSEG2[2:0] Bits
+    CAN_BIT_TIME_DSJW_SEL_e DSJW;           // DSJW[2:0] Bits
+
+}CAN_BUS_PARAMETER_T;
+
 typedef struct _can_bus_rx_fifo_flag_t
 {
     unsigned char RxBuffer0;
@@ -732,24 +752,6 @@ typedef enum
 
 //===============================================
 
-typedef struct _can_bus_parameter_t
-{
-    CAN_CHANNEL_SEL_e                   CAN_CH;
-    CAN_FD_MODE_e                       CAN_MODE;
-    const CAN_RX_FIFO_BUFER_NUMBER_e    CAN_RX_FIFO_BUFFER_NUM;
-
-    CAN_BIT_TIME_NBRP_SEL_e             NBRP;       // NBRP[9:0] Bits 
-    CAN_BIT_TIME_NTSEG1_SEL_e           NTSEG1;     // NTSEG1[6:0] Bits
-    CAN_BIT_TIME_NTSEG2_SEL_e           NTSEG2;     // NTSEG2[4:0] Bits
-    CAN_BIT_TIME_NSJW_SEL_e             NSJW;       // NSJW[4:0] Bits
-
-    CAN_BIT_TIME_DBRP_SEL_e             DBRP;       // DBRP[7:0] Bits 
-    CAN_BIT_TIME_DTSEG1_SEL_e           DTSEG1;     // DTSEG1[3:0] Bits
-    CAN_BIT_TIME_DTSEG2_SEL_e           DTSEG2;     // DTSEG2[2:0] Bits
-    CAN_BIT_TIME_DSJW_SEL_e             DSJW;       // DSJW[2:0] Bits
-
-}CAN_BUS_PARAMETER_T;
-
 typedef struct 
 {
     CAN_BUS_HANDLE                      *p;
@@ -827,7 +829,8 @@ extern void can_tx_buf_data_multi_send(CAN_REG_TYP * can,
 extern void can_rx_fifo_buf_int_check(CAN_REG_TYP * can,
                                         CAN_BUS_HANDLE *p,
                                         CAN_RX_FIFO_BUFER_NUMBER_e rfi_number);
-
+                                      
+unsigned char can_payload_calculate(unsigned char dlc);
 void can_reg_dump_log(void);
 
 // unsigned char can_global_error_interrupt_cbk(CAN_REG_TYP * can);

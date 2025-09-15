@@ -1,6 +1,20 @@
 # Sample_Project_RH850_S1_CAN_FD_MultiCHv2
 Sample_Project_RH850_S1_CAN_FD_MultiCHv2
 
+
+update @ 2025/09/15
+
+1. Add define : ENABLE_COMPLEX_LOG , to enable more log for monitor when receive CAN RX
+
+2. if disable define : ENABLE_COMPLEX_LOG , will display minimum log as below 
+
+log display below 
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/simple_tiny_printf.jpg)
+
+UART LOG spend timing : 2.85 ms
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/simple_tiny_printf2.jpg)
+
+
 update @ 2025/08/25
 
 1. initial __RH850/F1KM-S1 LQFP 64__ , to test below function 
@@ -74,9 +88,9 @@ can_fd_receive_fifo_buffer_decode
 
 - below is register for reference
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/Receive_FIFO_register.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/Receive_FIFO_register.jpg)
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/Receive_FIFO_buffer_register.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/Receive_FIFO_buffer_register.jpg)
 
 
 - __KEYPOINT_2__ : Sixteen receive rules can be set per page. 
@@ -138,11 +152,11 @@ under folder \hal\can_complex.7z , is previous structure for reference
 
 3. Below is PCAN config setting 
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/PCAN_cfg.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/PCAN_cfg.jpg)
 
 4. Below is power on message
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/log_MCU_power_on.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/log_MCU_power_on.jpg)
 
 5. when use UART terminal , which send CAN TX message from RH850 , and rececive with PCAN
 
@@ -151,35 +165,35 @@ use digit 1 ~ 4 , to send CAN0 TX data
 use digit 5 ~ 8 , to send CAN2 TX data 
 
 digit 1 , 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/log_tx1.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/log_tx1.jpg)
 
 
 digit 2 , 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/log_tx2.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/log_tx2.jpg)
 
 
 digit 3 , 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/log_tx3.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/log_tx3.jpg)
 
 
 digit 4 , 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/log_tx4.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/log_tx4.jpg)
 
 
 digit 5 , 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/log_tx5.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/log_tx5.jpg)
 
 
 digit 6 , 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/log_tx6.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/log_tx6.jpg)
 
 
 digit 7 , 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/log_tx7.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/log_tx7.jpg)
 
 
 digit 8 , 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/log_tx8.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/log_tx8.jpg)
 
 
 6. Below is different ID test condition , which send by PCAN (refer to PCAN_xfer.xmt) , and rececive with RH850 RX
@@ -187,72 +201,72 @@ digit 8 ,
 
 - ID : 55 , polling
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_pollig_ID_055.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_pollig_ID_055.jpg)
 
 
 - ID : 66 , polling
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_pollig_ID_066.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_pollig_ID_066.jpg)
 
 
 - ID : 77 , polling
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_pollig_ID_077.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_pollig_ID_077.jpg)
 
 
 - ID : 100 , polling
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_pollig_ID_100.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_pollig_ID_100.jpg)
 
 
 - ID : 103 , polling
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_pollig_ID_103.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_pollig_ID_103.jpg)
 
 
 - ID : 103 RTR , polling
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_pollig_ID_103_RTR.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_pollig_ID_103_RTR.jpg)
 
 
 - ID : 123 , polling
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_pollig_ID_123.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_pollig_ID_123.jpg)
 
 
 - ID : 00 , interrupt
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_interrupt_ID_000.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_interrupt_ID_000.jpg)
 
 
 - ID : 44 , interrupt
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_interrupt_ID_044.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_interrupt_ID_044.jpg)
 
 
 - ID : 7F , interrupt
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_interrupt_ID_07F.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_interrupt_ID_07F.jpg)
 
 
 - ID : 88 , interrupt
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_interrupt_ID_088.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_interrupt_ID_088.jpg)
 
 
 - ID : 102_RTR , interrupt
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_interrupt_ID_102_RTR.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_interrupt_ID_102_RTR.jpg)
 
 
 - ID : 102_RTR_extend , interrupt
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_interrupt_ID_102_RTR_extend.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_interrupt_ID_102_RTR_extend.jpg)
 
 
 - ID : 104 , interrupt
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/rx_interrupt_ID_104.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/rx_interrupt_ID_104.jpg)
 
 
 7. How to initial interrupt function , 

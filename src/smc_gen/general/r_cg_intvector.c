@@ -93,7 +93,7 @@ extern void eiint21(void);
 /* CAN global error interrupt; */
 extern void eiint22(void);
 /* CAN receive FIFO interrupt; */
-extern void eiint23(void);
+extern void can_rx_fifo_interrupt(void);
 /* CAN0 error interrupt; */
 extern void eiint24(void);
 /* CAN0 transmit/receive FIFO receive complete interrupt; */
@@ -812,7 +812,7 @@ void * const INT_Vectors[] = {
     /* CAN global error interrupt; */
     (void *)eiint22,
     /* CAN receive FIFO interrupt; */
-    (void *)eiint23,
+    (void *)can_rx_fifo_interrupt,
     /* CAN0 error interrupt; */
     (void *)eiint24,
     /* CAN0 transmit/receive FIFO receive complete interrupt; */
