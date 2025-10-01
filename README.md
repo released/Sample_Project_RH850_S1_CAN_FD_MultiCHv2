@@ -2,6 +2,25 @@
 Sample_Project_RH850_S1_CAN_FD_MultiCHv2
 
 
+update @ 2025/10/01
+
+1. Add define : ENABLE_GLOBAL_ERR_INTERRUPT , to control global error initial (RCFDCnCFDGERFL)
+
+- add global error interrupt irq and place in r_cg_intvector.c (eiint22)
+
+2. Add define : ENABLE_CAN0_ERR_INTERRUPT , to control channel 0 error initial (RCFDCnCFDCmERFL)
+
+- enable interrupt init in R_CANFD_Interrupt_Control_Init
+
+- add channel error interrupt irq and place in r_cg_intvector.c (eiint24)
+
+3. Add define : ENABLE_CAN2_ERR_INTERRUPT , to control channel 2 error initial (RCFDCnCFDCmERFL) 
+
+- enable interrupt init in R_CANFD_Interrupt_Control_Init
+
+- add channel error interrupt irq and place in r_cg_intvector.c (eiint217)
+
+
 update @ 2025/09/15
 
 1. Add define : ENABLE_COMPLEX_LOG , to enable more log for monitor when receive CAN RX

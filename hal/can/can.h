@@ -11,6 +11,9 @@
 // #define ENABLE_CAN4
 
 // #define ENABLE_TDC
+#define ENABLE_CAN2_ERR_INTERRUPT
+#define ENABLE_CAN0_ERR_INTERRUPT
+// #define ENABLE_GLOBAL_ERR_INTERRUPT
 
 #define ENABLE_COMPLEX_LOG
 
@@ -803,7 +806,7 @@ extern const CAN_RX_RULE_TABLE_T can_bus_rx_rule_tbl_ch4[CAN_RX_RULE_CURRENT_AMO
 
 // void can_self_test_mode(CAN_REG_TYP * can , unsigned char en);
 
-// void R_CANFD_Global_error_Interrupt_Init(void);
+void R_CANFD_Global_error_Interrupt_Init(void);
 
 extern void R_CANFD_Deinit(void);
 extern void R_CANFD_Init(void);
@@ -833,7 +836,9 @@ extern void can_rx_fifo_buf_int_check(CAN_REG_TYP * can,
 unsigned char can_payload_calculate(unsigned char dlc);
 void can_reg_dump_log(void);
 
-// unsigned char can_global_error_interrupt_cbk(CAN_REG_TYP * can);
+unsigned char can_channel_error_interrupt_cbk(CAN_REG_TYP * can,CAN_CHANNEL_SEL_e channel);
+unsigned char can_global_error_interrupt_cbk(CAN_REG_TYP * can);
+
 void can_rx_buffer_set(CAN_REG_TYP * can);
 
 signed char can_fd_receive_buffer_decode(CAN_REG_TYP * can, CAN_RX_FIFO_BUFER_NUMBER_e rfi_number);

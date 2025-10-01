@@ -91,11 +91,11 @@ extern void eiint20(void);
 /* Dedicated interrupt for on-chip debug function; */
 extern void eiint21(void);
 /* CAN global error interrupt; */
-extern void eiint22(void);
+extern void can_global_error_interrupt(void);
 /* CAN receive FIFO interrupt; */
 extern void can_rx_fifo_interrupt(void);
 /* CAN0 error interrupt; */
-extern void eiint24(void);
+extern void can0_error_interrupt(void);
 /* CAN0 transmit/receive FIFO receive complete interrupt; */
 extern void eiint25(void);
 /* CAN0 transmit interrupt; */
@@ -481,7 +481,7 @@ extern void eiint215(void);
 /* Reserved; */
 extern void eiint216(void);
 /* CAN2 error interrupt; */
-extern void eiint217(void);
+extern void can2_error_interrupt(void);
 /* CAN2 transmit/receive FIFO receive complete interrupt; */
 extern void eiint218(void);
 /* CAN2 transmit interrupt; */
@@ -810,11 +810,11 @@ void * const INT_Vectors[] = {
     /* Dedicated interrupt for on-chip debug function; */
     (void *)eiint21,
     /* CAN global error interrupt; */
-    (void *)eiint22,
+    (void *)can_global_error_interrupt,
     /* CAN receive FIFO interrupt; */
     (void *)can_rx_fifo_interrupt,
     /* CAN0 error interrupt; */
-    (void *)eiint24,
+    (void *)can0_error_interrupt,
     /* CAN0 transmit/receive FIFO receive complete interrupt; */
     (void *)eiint25,
     /* CAN0 transmit interrupt; */
@@ -1200,7 +1200,7 @@ void * const INT_Vectors[] = {
     /* Reserved; */
     (void *)eiint216,
     /* CAN2 error interrupt; */
-    (void *)eiint217,
+    (void *)can2_error_interrupt,
     /* CAN2 transmit/receive FIFO receive complete interrupt; */
     (void *)eiint218,
     /* CAN2 transmit interrupt; */

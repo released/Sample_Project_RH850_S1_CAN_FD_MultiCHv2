@@ -1166,6 +1166,34 @@ const CAN_RX_RULE_TABLE_T can_bus_rx_rule_tbl_ch4[CAN_RX_RULE_CURRENT_AMOUNT] =
 // }; 
 
 
+const char* can_ch_err_flag[] =
+{
+    "BEF:Bus Error Flag",
+    "EWF:Error Warning Flag",
+    "EPF:Error Passive Flag",
+    "BOEF:Bus Off Entry Flag",
+    "BORF:Bus Off Recovery Flag",
+    "OVLF:Overload Flag",
+    "BLF:Bus Lock Flag",
+    "ALF:Arbitration-lost Flag",
+    "SERR:Stuff Error Flag",
+    "FERR:Form Error Flag",
+    "AERR:ACK Error Flag",
+    "CERR:CRC Error Flag",
+    "B1ERR:Recessive Bit Error Flag",
+    "B0ERR:Dominant Bit Error Flag",
+    "ADERR:ACK Delimiter Error Flag",
+};
+
+const char* can_global_err_flag[] =
+{
+    "DEF:DLC Error Flag",
+    "MES:FIFO Message Lost Status Flag",
+    "THLES:Transmit History Buffer Overflow Status Flag",
+    "CMPOF:Payload Overflow Flag"
+};
+
+
 const char* tbl_can_fifo_buffer_num[] =
 {
     "CAN_RX_FIFO_BUFFER_NUMBER0",
@@ -2880,7 +2908,8 @@ static void can_start(CAN_REG_TYP * can,CAN_CHANNEL_SEL_e channel)
     }
     
 
-    // CAN_REG_SET(cst[channel].CxCTR.UINT32,CAN_REG_BIT8,CAN_REG_LENGTH_1); //BEIE
+    // CAN_REG_SET(cst[channel].CxCTR.UINT32,CAN_REG_BIT23,CAN_REG_LENGTH_1); //ERRD
+    CAN_REG_SET(cst[channel].CxCTR.UINT32,CAN_REG_BIT8,CAN_REG_LENGTH_1); //BEIE
     // CAN_REG_SET(cst[channel].CxCTR.UINT32,CAN_REG_BIT11,CAN_REG_LENGTH_1); //BOEIE
     // CAN_REG_SET(cst[channel].CxCTR.UINT32,CAN_REG_BIT12,CAN_REG_LENGTH_1); //BORIE
 
@@ -2933,7 +2962,10 @@ static void can_normal_mode_set(CAN_REG_TYP * can,
 
         while(CAN_REG_READ(can->CFDGSTS.UINT32,CAN_REG_BIT2,CAN_REG_LENGTH_1)!=0);  //GSLPSTS
 
+        
+        #if defined (ENABLE_GLOBAL_ERR_INTERRUPT)
         // R_CANFD_Global_error_Interrupt_Init();
+        #endif
 
         //===========only for F1KM-S1 R7F701587x Kit init.===================
         //CAN_REG_SET(can->CFDGRMCFG.UINT32,CAN_REG_BIT0,CAN_REG_LENGTH_1);   //set as FD mode  
@@ -3327,12 +3359,30 @@ void R_CLKC_SetRscanClockDomain(uint32_t RscanModuleClockDomain, uint32_t RscanC
 // /* CAN receive FIFO interrupt; */
 // (void *)can_rx_fifo_interrupt,
 
+/* CAN2 error interrupt; */
+#pragma interrupt can2_error_interrupt(enable=false, channel=217, fpu=true, callt=false)
+void can2_error_interrupt(void)
+{
+    #if defined (ENABLE_CAN2_ERR_INTERRUPT)
+    can_channel_error_interrupt_cbk(&RCFDC0,can_bus_parameter_ch2.CAN_CH);
+    #endif
+}
+/* CAN0 error interrupt; */
+#pragma interrupt can0_error_interrupt(enable=false, channel=24, fpu=true, callt=false)
+void can0_error_interrupt(void)
+{
+    #if defined (ENABLE_CAN0_ERR_INTERRUPT)
+    can_channel_error_interrupt_cbk(&RCFDC0,can_bus_parameter_ch0.CAN_CH);
+    #endif
+}
 
 /* CAN GLOBAL ERROR INTERRUPT */
 #pragma interrupt can_global_error_interrupt(enable=false, channel=22, fpu=true, callt=false)
 void can_global_error_interrupt(void)
 {
-    // can_global_error_interrupt_cbk(&RCFDC0);
+    #if defined (ENABLE_GLOBAL_ERR_INTERRUPT)
+    can_global_error_interrupt_cbk(&RCFDC0);
+    #endif
 }
 
 #pragma interrupt can_rx_fifo_interrupt(enable=false, channel=23, fpu=true, callt=false)
@@ -3344,73 +3394,75 @@ void can_rx_fifo_interrupt(void)
 }
 
 
-// void R_CANFD_Global_error_Interrupt_Init(void)
-// {
+void R_CANFD_Global_error_Interrupt_Init(void)
+{
 
-//     // global error
-//     INTC1.ICRCANGERR0.BIT.TBRCANGERR0 = _INT_TABLE_VECTOR; //select table interrupt
-//     INTC1.ICRCANGERR0.BIT.RFRCANGERR0 = _INT_REQUEST_NOT_OCCUR;
-//     INTC1.ICRCANGERR0.BIT.MKRCANGERR0 = _INT_PROCESSING_ENABLED;
-//     /*
-//         Corresponding Interrupt Enable Bit
-//         DEIE in the RCFDCnCFDGCTR register 
-//         MEIE in the RCFDCnCFDGCTR register 
-//         THLEIE in the RCFDCnCFDGCTR register 
-//         CMPOFIE in the RCFDCnCFDGCTR register 
-//     */
+    // global error
+    INTC1.ICRCANGERR0.BIT.CTRCANGERR0 = 1;    
+    INTC1.ICRCANGERR0.BIT.RFRCANGERR0 = _INT_REQUEST_NOT_OCCUR;
+    INTC1.ICRCANGERR0.BIT.MKRCANGERR0 = _INT_PROCESSING_ENABLED;
+    INTC1.ICRCANGERR0.BIT.TBRCANGERR0 = _INT_TABLE_VECTOR; //select table interrupt
 
-//     CAN_REG_CLR(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT8,CAN_REG_LENGTH_1);   //DEIE
-//     CAN_REG_SET(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT8,CAN_REG_LENGTH_1);
+    /*
+        Corresponding Interrupt Enable Bit
+        DEIE in the RCFDCnCFDGCTR register 
+        MEIE in the RCFDCnCFDGCTR register 
+        THLEIE in the RCFDCnCFDGCTR register 
+        CMPOFIE in the RCFDCnCFDGCTR register 
+    */
 
-//     /*
-//         DEIE Bit 
-//         When the DEIE bit is set to 1 and the DEF flag in the RCFDCnCFDGERFL register is set to 1, an interrupt request is 
-//         generated. Modify this bit only in global reset mode. 
+    CAN_REG_CLR(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT8,CAN_REG_LENGTH_1);   //DEIE
+    CAN_REG_SET(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT8,CAN_REG_LENGTH_1);
 
-//         DLC Error Interrupt Enable 
-//         0: DLC error interrupt is disabled. 
-//         1: DLC error interrupt is enabled.     
-//     */
+    /*
+        DEIE Bit 
+        When the DEIE bit is set to 1 and the DEF flag in the RCFDCnCFDGERFL register is set to 1, an interrupt request is 
+        generated. Modify this bit only in global reset mode. 
 
-//     CAN_REG_CLR(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT9,CAN_REG_LENGTH_1);   //MEIE
-//     CAN_REG_SET(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT9,CAN_REG_LENGTH_1);
+        DLC Error Interrupt Enable 
+        0: DLC error interrupt is disabled. 
+        1: DLC error interrupt is enabled.     
+    */
 
-//     /*
-//         MEIE Bit 
-//         When the MEIE bit is set to 1 and the MES flag in the RCFDCnCFDGERFL register is set to 1, an interrupt request is 
-//         generated. Modify this bit only in global reset mode. 
+    CAN_REG_CLR(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT9,CAN_REG_LENGTH_1);   //MEIE
+    CAN_REG_SET(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT9,CAN_REG_LENGTH_1);
 
-//         FIFO Message Lost Interrupt Enable 
-//         0: FIFO message lost interrupt is disabled. 
-//         1: FIFO message lost interrupt is enabled.     
-//     */
+    /*
+        MEIE Bit 
+        When the MEIE bit is set to 1 and the MES flag in the RCFDCnCFDGERFL register is set to 1, an interrupt request is 
+        generated. Modify this bit only in global reset mode. 
 
-//     CAN_REG_CLR(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT10,CAN_REG_LENGTH_1);  //THLEIE
-//     CAN_REG_SET(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT10,CAN_REG_LENGTH_1);
+        FIFO Message Lost Interrupt Enable 
+        0: FIFO message lost interrupt is disabled. 
+        1: FIFO message lost interrupt is enabled.     
+    */
 
-//     /*
-//         THLEIE Bit 
-//         When the THLEIE bit is set to 1 and the THLES flag in the RCFDCnCFDGERFL register is set to 1, an interrupt 
-//         request is generated. Modify this bit only in global reset mode. 
+    CAN_REG_CLR(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT10,CAN_REG_LENGTH_1);  //THLEIE
+    CAN_REG_SET(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT10,CAN_REG_LENGTH_1);
 
-//         Transmit History Buffer Overflow Interrupt Enable 
-//         0: Transmit history buffer overflow interrupt is disabled. 
-//         1: Transmit history buffer overflow interrupt is enabled.    
-//     */
+    /*
+        THLEIE Bit 
+        When the THLEIE bit is set to 1 and the THLES flag in the RCFDCnCFDGERFL register is set to 1, an interrupt 
+        request is generated. Modify this bit only in global reset mode. 
 
-//     CAN_REG_CLR(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT11,CAN_REG_LENGTH_1);  //CMPOFIE 
-//     CAN_REG_SET(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT11,CAN_REG_LENGTH_1);
+        Transmit History Buffer Overflow Interrupt Enable 
+        0: Transmit history buffer overflow interrupt is disabled. 
+        1: Transmit history buffer overflow interrupt is enabled.    
+    */
 
-//     /*
-//         CMPOFIE Bit 
-//         When the CMPOF flag in the RCFDCnCFDGERFL register is set to 1 after the CMPOFIE bit is set to 1, an interrupt 
-//         request occurs. Modify this bit only in global reset mode. 
+    CAN_REG_CLR(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT11,CAN_REG_LENGTH_1);  //CMPOFIE 
+    CAN_REG_SET(RCFDC0.CFDGCTR.UINT32,CAN_REG_BIT11,CAN_REG_LENGTH_1);
 
-//         Payload Overflow Interrupt Enable 
-//         0: A payload overflow interrupt is disabled. 
-//         1: A payload overflow interrupt is enabled.     
-//     */
-// }
+    /*
+        CMPOFIE Bit 
+        When the CMPOF flag in the RCFDCnCFDGERFL register is set to 1 after the CMPOFIE bit is set to 1, an interrupt 
+        request occurs. Modify this bit only in global reset mode. 
+
+        Payload Overflow Interrupt Enable 
+        0: A payload overflow interrupt is disabled. 
+        1: A payload overflow interrupt is enabled.     
+    */
+}
 
 void R_CANFD_Interrupt_Control_Init(void)
 {
@@ -3454,6 +3506,30 @@ void R_CANFD_Interrupt_Control_Init(void)
     INTC1.ICRCANGRECC0.BIT.P2RCANGRECC0 = 1;
     INTC1.ICRCANGRECC0.BIT.P1RCANGRECC0 = 1;
     INTC1.ICRCANGRECC0.BIT.P0RCANGRECC0 = 1;
+
+    #if defined (ENABLE_CAN0_ERR_INTERRUPT)
+    INTC1.ICRCAN0ERR.BIT.CTRCAN0ERR = 1;
+    INTC1.ICRCAN0ERR.BIT.RFRCAN0ERR = _INT_REQUEST_NOT_OCCUR;  
+    INTC1.ICRCAN0ERR.BIT.MKRCAN0ERR = _INT_PROCESSING_ENABLED;
+    INTC1.ICRCAN0ERR.BIT.TBRCAN0ERR = _INT_TABLE_VECTOR;
+
+    INTC1.ICRCAN0ERR.BIT.P0RCAN0ERR = 1;
+    INTC1.ICRCAN0ERR.BIT.P1RCAN0ERR = 1;
+    INTC1.ICRCAN0ERR.BIT.P2RCAN0ERR = 1;
+    INTC1.ICRCAN0ERR.BIT.P3RCAN0ERR = 1;
+    #endif
+
+    #if defined (ENABLE_CAN2_ERR_INTERRUPT)
+    INTC2.ICRCAN2ERR.BIT.CTRCAN2ERR = 1;
+    INTC2.ICRCAN2ERR.BIT.RFRCAN2ERR = _INT_REQUEST_NOT_OCCUR;  
+    INTC2.ICRCAN2ERR.BIT.MKRCAN2ERR = _INT_PROCESSING_ENABLED;
+    INTC2.ICRCAN2ERR.BIT.TBRCAN2ERR = _INT_TABLE_VECTOR;
+
+    INTC2.ICRCAN2ERR.BIT.P0RCAN2ERR = 1;
+    INTC2.ICRCAN2ERR.BIT.P1RCAN2ERR = 1;
+    INTC2.ICRCAN2ERR.BIT.P2RCAN2ERR = 1;
+    INTC2.ICRCAN2ERR.BIT.P3RCAN2ERR = 1;
+    #endif
 
     //CAN Receive/Transmit FIFO receive complete interrupt
     // INTC1.ICRCAN1REC.BIT.TBRCAN1REC = _INT_TABLE_VECTOR;
@@ -3928,76 +4004,74 @@ static void can_tx_normal_buffer1_set(CAN_BUS_HANDLE *p,CAN_FD_MODE_e mode,unsig
 // unsigned char can_global_error_interrupt_cbk(CAN_REG_TYP * can)
 // {
 
-//     /*
-//         DEF in the RCFDCnCFDGERFL register
-//         MES in the RCFDCnCFDGERFL register
-//         THLES in the RCFDCnCFDGERFL register
-//         CMPOF in the RCFDCnCFDGERFL register    
-//     */
-
-//     if (CAN_REG_READ(can->CFDGERFL.UINT32,CAN_REG_BIT0,0x1U))
-//     {
-//         /*
-//             DEF  DLC Error Flag 
-//             0: No DLC error has occurred. 
-//             1: A DLC error has occurred.       
-            
-//             DEF Flag 
-//             The DEF flag is set to 1 when an error has been detected during the DLC check. The program can clear this flag by 
-//             writing 0 to this bit. 
-//             To clear the flags of the register to 0, the program must write 0 to the corresponding flag to be cleared. When writing 0, 
-//             using store instruction, set the bit to be set to “0” to “0”, and the bits not to be set to “0” to “1”.             
-
-//         */
-       
-//         // CAN_REG_CLR(can->CFDGERFL.UINT32,CAN_REG_BIT0,CAN_REG_LENGTH_1);    
-//         can->CFDGERFL.UINT32 = 0xFFFFFFFEU;
-//         tiny_printf("[CAN global error]DEF(DLC Error Flag)\r\n");
-//     }
-
-
-//     if (CAN_REG_READ(can->CFDGERFL.UINT32,CAN_REG_BIT1,0x1U))
-//     {
-//         /*
-//             MES  FIFO Message Lost Status Flag 
-//             0: No FIFO message lost error has occurred. 
-//             1: A FIFO message lost error has occurred. 
-//         */
-       
-//         CAN_REG_CLR(can->CFDGERFL.UINT32,CAN_REG_BIT1,CAN_REG_LENGTH_1);
+unsigned char can_channel_error_interrupt_cbk(CAN_REG_TYP * can,CAN_CHANNEL_SEL_e channel)
+{
+    /*
+        RCFDCnCFDCmERFL  
+        0: No ____ is detected.
+        1: ____ is detected. 
         
-//         tiny_printf("[CAN global error]MES(FIFO Message Lost Status Flag)\r\n");
-//     }    
+        BIT15 -   
+        BIT14 ADERR:ACK Delimiter Error Flag
+        BIT13 B0ERR:Dominant Bit Error Flag
+        BIT12 B1ERR:Recessive Bit Error Flag
+        BIT11 CERR:CRC Error Flag
+        BIT10 AERR:ACK Error Flag
+        BIT9 FERR:Form Error Flag
+        BIT8 SERR:Stuff Error Flag
+        BIT7 ALF:Arbitration-lost Flag 
+        BIT6 BLF:Bus Lock Flag 
+        BIT5 OVLF:Overload Flag
+        BIT4 BORF:Bus Off Recovery Flag
+        BIT3 BOEF:Bus Off Entry Flag
+        BIT2 EPF:Error Passive Flag
+        BIT1 EWF:Error Warning Flag
+        BIT0 BEF:Bus Error Flag
+    */
+   
+    volatile struct CHANNEL_SET *cst= (volatile struct CHANNEL_SET *)(&can->CFDC0NCFG.UINT32);
+    uint32_t erfl = cst[channel].CxERFL.UINT32;
+    uint8_t b = 0;
 
-//     if (CAN_REG_READ(can->CFDGERFL.UINT32,CAN_REG_BIT2,0x1U))
-//     {
-//         /*
-//             THLES  Transmit History Buffer Overflow Status Flag 
-//             0: No transmit history buffer overflow has occurred. 
-//             1: A transmit history buffer overflow has occurred. 
-//         */
-       
-//         CAN_REG_CLR(can->CFDGERFL.UINT32,CAN_REG_BIT2,CAN_REG_LENGTH_1);
-        
-//         tiny_printf("[CAN global error]THLES(Transmit History Buffer Overflow Status Flag)\r\n");
-//     }    
+    for (b = 0; b <= 14; ++b) 
+    {
+        if (erfl & (1u << b)) 
+        {
+            CAN_W0C_CLR1(cst[channel].CxERFL.UINT32, b);
+            tiny_printf("\r\n[CAN channel-%d Error]%s\r\n",channel,can_ch_err_flag[b]);
+        }
+    }
 
-//     if (CAN_REG_READ(can->CFDGERFL.UINT32,CAN_REG_BIT3,0x1U))
-//     {
-//         /*
-//             CMPOF  Payload Overflow Flag 
-//             0: No payload overflow has occurred. 
-//             1: A payload overflow has occurred. 
-//         */
-       
-//         // CAN_REG_CLR(can->CFDGERFL.UINT32,CAN_REG_BIT3,CAN_REG_LENGTH_1);    
-//         can->CFDGERFL.UINT32 = 0xFFFFFFF7U;
-        
-//         tiny_printf("[CAN global error]CMPOF(Payload Overflow Flag)\r\n");
-//     }    
+    return 0;
+}
 
-//     return 0;
-// }
+unsigned char can_global_error_interrupt_cbk(CAN_REG_TYP * can)
+{
+    /*
+        RCFDCnCFDGERFL  
+        0: No ____ has occurred.
+        1: A ____ has occurred.. 
+
+        BIT3 CMPOF:Payload Overflow Flag
+        BIT2 THLES:Transmit History Buffer Overflow Status Flag
+        BIT1 MES:FIFO Message Lost Status Flag 
+        BIT0 DEF:DLC Error Flag   
+    */
+
+    uint32_t erfl = can->CFDGERFL.UINT32;
+    uint8_t b = 0;
+
+    for (b = 0; b <= 3; ++b) 
+    {
+        if (erfl & (1u << b)) 
+        {
+            CAN_W0C_CLR1(can->CFDGERFL.UINT32, b);
+            tiny_printf("\r\n[CAN Global Error]%s\r\n",can_global_err_flag[b]);
+        }
+    }
+
+    return 0;
+}
 
 /*
     −  Receive buffers (RCFDCnCFDRMIDq, RCFDCnCFDRMPTRq, RCFDCnCFDRMFDSTSq, RCFDCnCFDRMDFb_q registers) 
