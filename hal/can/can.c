@@ -4,6 +4,10 @@
 #include "retarget.h"
 #include "misc_config.h"
 
+#if defined (ENABLE_USE_RAM_STORE_RX_DATA)
+volatile can_rx_record_t g_rx_record;
+#endif
+
   
 /*
     PCAN value : 
@@ -4245,6 +4249,59 @@ signed char can_fd_receive_buffer_decode(CAN_REG_TYP * can, CAN_RX_FIFO_BUFER_NU
         q
         dlc
     */
+
+    #if defined (ENABLE_USE_RAM_STORE_RX_DATA)
+
+    g_rx_record.id       = 0UL;
+    g_rx_record.dlc      = 0U;
+    g_rx_record.data_len = 0U;
+    g_rx_record.reserved = 0U;
+
+    for (i = 0U; i < CAN_RX_MAX_DATA_LEN; i++)
+    {
+        g_rx_record.data[i] = 0U;
+    }
+
+    /* clear all CxRMND (new data flag) */
+    CAN_REG_CLR(can->CFDRMND0.UINT32, CAN_REG_BIT0, 0xFFFFFFFFU);
+    CAN_REG_CLR(can->CFDRMND1.UINT32, CAN_REG_BIT0, 0xFFFFFFFFU);
+    CAN_REG_CLR(can->CFDRMND2.UINT32, CAN_REG_BIT0, 0xFFFFFFFFU);
+
+    /* ============================
+     * 1. read CAN ID (RMID)
+     * ============================ */
+    g_rx_record.id = CAN_REG_READ(rmid0[q_number].UINT32,CAN_REG_BIT0,0x1FFFFFFFU);  //RMID
+
+    /* ============================
+     * 2. read DLC (RMDLC)
+     * ============================ */
+    g_rx_record.dlc = CAN_REG_READ(rmptr0[q_number].UINT32,CAN_REG_BIT28,0xFU);      //RMDLC
+
+    /* convert to payload bytes */
+    g_rx_record.data_len = can_payload_calculate(tbl_can_dlc_bytes[g_rx_record.dlc]);   
+
+    /* ============================
+     * 3. read RMDF
+     *    according to 32-bit words split to byte[]
+     * ============================ */
+    for (i = 0; i < g_rx_record.data_len; i++ ) // CHECK can_payload_calculate return value
+    {
+        g_rx_record.data[0+i*4] = (rmdf0_0[i+q_number].UINT32) & 0xFF;
+        g_rx_record.data[1+i*4] = (rmdf0_0[i+q_number].UINT32>>8) & 0xFF;
+        g_rx_record.data[2+i*4] = (rmdf0_0[i+q_number].UINT32>>16) & 0xFF;
+        g_rx_record.data[3+i*4] = (rmdf0_0[i+q_number].UINT32>>24) & 0xFF;
+    }    
+
+    #if 0   // enable for debug
+    tiny_printf("(RAM)%03X ",g_rx_record.id);
+    for (i = 0; i < g_rx_record.data_len*4 ; i++)
+    {
+        tiny_printf("%02X ", g_rx_record.data[i]);
+    }
+    tiny_printf("\r\n");
+    #endif
+
+    #else
     CAN_REG_CLR(can->CFDRMND0.UINT32,CAN_REG_BIT0,0xFFFFFFFF);
     CAN_REG_CLR(can->CFDRMND1.UINT32,CAN_REG_BIT0,0xFFFFFFFF);
     CAN_REG_CLR(can->CFDRMND2.UINT32,CAN_REG_BIT0,0xFFFFFFFF);
@@ -4262,6 +4319,8 @@ signed char can_fd_receive_buffer_decode(CAN_REG_TYP * can, CAN_RX_FIFO_BUFER_NU
         tiny_printf("%02X ", (rmdf0_0[i+q_number].UINT32>>24) & 0xFF );
     }
     tiny_printf("\r\n");
+    #endif
+
     #endif
 
     return 0;

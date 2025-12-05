@@ -1,9 +1,9 @@
-﻿<CubeSuiteProject PackageVersion="V8.13.00  [05 Dec 2024]">
-  <ProductVersion>9.13.00.00</ProductVersion>
+﻿<CubeSuiteProject PackageVersion="V8.14.00  [02 Jun 2025]">
+  <ProductVersion>9.14.00.00</ProductVersion>
   <Class Guid="68f4a651-b9cd-473b-a595-b00447132ffa">
     <Instance Guid="00000000-0000-0000-0000-000000000000">
       <FormatVersion>2.0</FormatVersion>
-      <FileVersion>9.13</FileVersion>
+      <FileVersion>9.14</FileVersion>
       <ProjectGuid>6aaa356a-3dc6-4897-a319-9f0b7797fcf6</ProjectGuid>
       <ProjectItemGuid>72e07859-08b3-42fc-9108-4dd620e758c1</ProjectItemGuid>
       <FileCategoryGuid>4750b19e-6567-4899-94db-8f6cffb395d2</FileCategoryGuid>
@@ -861,7 +861,7 @@ hal\can
       <LinkOptionLibraryLibMalloc-DefaultValue>False</LinkOptionLibraryLibMalloc-DefaultValue>
       <LinkOptionLibraryLibSetJmp-DefaultValue>False</LinkOptionLibraryLibSetJmp-DefaultValue>
       <IsLockedByUser>False</IsLockedByUser>
-      <TimeTagModified--0>-8584457804386940276</TimeTagModified--0>
+      <TimeTagModified--0>-8584366800489891227</TimeTagModified--0>
       <LinkOptionAllowOptimizeEntryBlock-0>False</LinkOptionAllowOptimizeEntryBlock-0>
       <LinkOptionCpu-0>False</LinkOptionCpu-0>
       <LinkOptionDebug-0>Debug</LinkOptionDebug-0>
@@ -873,7 +873,7 @@ hal\can
       <LinkOptionOptimize-0>None</LinkOptionOptimize-0>
       <LinkOptionOutputFolder-0>%BuildModeName%</LinkOptionOutputFolder-0>
       <LinkOptionStack-0>False</LinkOptionStack-0>
-      <LinkOptionStart-0>RESET/%ResetVectorPE1%,EIINTTBL.const/00000200,.const,.INIT_DSEC.const,.INIT_BSEC.const,.text,.data,privateData.const,privateData.data/00008000,.data.R,.bss,.stack.bss,privateData.bss/FEDE8000</LinkOptionStart-0>
+      <LinkOptionStart-0>RESET/%ResetVectorPE1%,EIINTTBL.const/00000200,.const,.INIT_DSEC.const,.INIT_BSEC.const,.text,.data,privateData.const,privateData.data/00008000,.data.R,.bss,.stack.bss,privateData.bss/FEDF0000</LinkOptionStart-0>
       <LinkOptionBinary-0 />
       <LinkOptionCompress-0>False</LinkOptionCompress-0>
       <LinkOptionCpuInformation-0 />

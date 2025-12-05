@@ -16,6 +16,7 @@
 // #define ENABLE_GLOBAL_ERR_INTERRUPT
 
 #define ENABLE_COMPLEX_LOG
+#define ENABLE_USE_RAM_STORE_RX_DATA
 
 // #define CAN_USE_RX_RULE
 #define CAN_RX_POLLING
@@ -743,6 +744,17 @@ typedef enum
 	CAN_COMM_SELF_TEST_MODE_1,          //internal loopback mode
 
 }CAN_COMM_TEST_MODE_SEL_e;
+
+#if defined (ENABLE_USE_RAM_STORE_RX_DATA)
+#define CAN_RX_MAX_DATA_LEN   64u
+typedef struct {
+    unsigned long   id;                        /* 29-bit / 11-bit column */
+    unsigned char   dlc;                       /* 0–15 (FD DLC encode) */
+    unsigned char   data_len;                  /* payload bytes count (0–64) */
+    uint8_t         reserved;
+    unsigned char   data[CAN_RX_MAX_DATA_LEN]; /* actual data */
+} can_rx_record_t;
+#endif
 
 //===============================================
 

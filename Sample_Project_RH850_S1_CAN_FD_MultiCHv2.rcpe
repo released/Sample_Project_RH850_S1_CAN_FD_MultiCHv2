@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <MicomToolCommonProjectFile Version="1.00">
-  <CreatorType Name="CubeSuite+" Version="V8.13.00  [05 Dec 2024]" />
+  <CreatorType Name="CubeSuite+" Version="V8.14.00  [02 Jun 2025]" />
   <Placeholders>
     <PlaceholderPrefix>%</PlaceholderPrefix>
     <PlaceholderPostfix>%</PlaceholderPostfix>
@@ -150,7 +150,7 @@
           <Option>-library=v850e3v5\libmalloc.lib</Option>
           <Option>-list=%BuildModeName%\%ProjectName%.map</Option>
           <Option>-show=all</Option>
-          <Option>-start=RESET/0,EIINTTBL.const/00000200,.const,.INIT_DSEC.const,.INIT_BSEC.const,.text,.data,privateData.const,privateData.data/00008000,.data.R,.bss,.stack.bss,privateData.bss/FEDE8000</Option>
+          <Option>-start=RESET/0,EIINTTBL.const/00000200,.const,.INIT_DSEC.const,.INIT_BSEC.const,.text,.data,privateData.const,privateData.data/00008000,.data.R,.bss,.stack.bss,privateData.bss/FEDF0000</Option>
           <Option>-rom=.data=.data.R</Option>
           <Option>-total_size</Option>
           <Option>-nologo</Option>

@@ -2,6 +2,31 @@
 Sample_Project_RH850_S1_CAN_FD_MultiCHv2
 
 
+update @ 2025/12/05
+
+1. Add define : ENABLE_USE_RAM_STORE_RX_DATA , 
+
+- under can_fd_receive_buffer_decode , collect RX data in structure (g_rx_record) and check in watch window instead of display in terminal
+
+- need to disable define : ENABLE_COMPLEX_LOG to see the variable in watch window
+
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/watch_window_0.jpg)
+
+2. enable Access during the execution , Update display during the exection
+
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/watch_window_1.jpg)
+
+3. need to modify section address layout , base on TARGET MCU available RAM size
+
+- ex : RH850/F1KM-S1 , flash size 512K : Local RAM (Self) will be start at FEDF 0000
+
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/watch_window_2.jpg)
+
+- modify section address , base on RH850/F1KM-S1 flash size 512K setting
+
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/watch_window_3.jpg)
+
+
 update @ 2025/10/01
 
 1. Add define : ENABLE_GLOBAL_ERR_INTERRUPT , to control global error initial (RCFDCnCFDGERFL)

@@ -97,32 +97,15 @@ void set_tick(unsigned short t)
 void tick_counter(void)
 {
 	counter_tick++;
-    if (get_tick() >= 60000U)
-    {
-        set_tick(0U);
-    }
 }
 
 void delay_ms(unsigned long ms)
 {
-    unsigned long tickstart = get_tick();
-    unsigned long wait = ms;
-	unsigned long tmp = 0U;
-	
-    while (1)
-    {
-		if (get_tick() > tickstart)	// tickstart = 59000 , tick_counter = 60000
-		{
-			tmp = get_tick() - tickstart;
-		}
-		else // tickstart = 59000 , tick_counter = 2048
-		{
-			tmp = 60000U -  tickstart + get_tick();
-		}		
+	uint32_t start = get_tick();
+    while ((uint32_t)(get_tick() - start) < (uint32_t)ms) 
+	{
 		
-		if (tmp > wait)
-			break;
-    }
+	}
 }
 
 
