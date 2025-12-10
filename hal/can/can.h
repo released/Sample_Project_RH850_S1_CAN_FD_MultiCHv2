@@ -11,12 +11,13 @@
 // #define ENABLE_CAN4
 
 // #define ENABLE_TDC
-#define ENABLE_CAN2_ERR_INTERRUPT
-#define ENABLE_CAN0_ERR_INTERRUPT
+//#define ENABLE_CAN2_ERR_INTERRUPT
+//#define ENABLE_CAN0_ERR_INTERRUPT
 // #define ENABLE_GLOBAL_ERR_INTERRUPT
 
 #define ENABLE_COMPLEX_LOG
 #define ENABLE_USE_RAM_STORE_RX_DATA
+#define ENABLE_CHANNEL_ERR_FLAG_DETECTION
 
 // #define CAN_USE_RX_RULE
 #define CAN_RX_POLLING
@@ -756,6 +757,39 @@ typedef struct {
 } can_rx_record_t;
 #endif
 
+typedef enum
+{
+	CAN_CH_STS_FLAG_CRSTSTS = 0,    /*Channel Reset Status Flag*/
+    CAN_CH_STS_FLAG_CHLTSTS,        /*Channel Halt Status Flag*/
+    CAN_CH_STS_FLAG_CSLPSTS,        /*Channel Stop Status Flag*/
+    CAN_CH_STS_FLAG_EPSTS,       	/*Error Passive Status Flag */
+    CAN_CH_STS_FLAG_BOSTS,       	/*Bus Off Status Flag*/
+    CAN_CH_STS_FLAG_TRMSTS,       	/*Transmit Status Flag*/
+    CAN_CH_STS_FLAG_RECSTS,        	/*Receive Status Flag*/
+    CAN_CH_STS_FLAG_COMSTS,        	/*Communication Status Flag*/
+}CAN_CH_CmSTS_e;
+
+typedef enum
+{
+	CAN_CH_ERR_FLAG_BEF = 0,    /*BIT0 BEF:Bus Error Flag*/
+    CAN_CH_ERR_FLAG_EWF,        /*BIT1 EWF:Error Warning Flag*/
+    CAN_CH_ERR_FLAG_EPF,        /*BIT2 EPF:Error Passive Flag*/
+    CAN_CH_ERR_FLAG_BOEF,       /*BIT3 BOEF:Bus Off Entry Flag*/
+    CAN_CH_ERR_FLAG_BORF,       /*BIT4 BORF:Bus Off Recovery Flag*/
+    CAN_CH_ERR_FLAG_OVLF,       /*BIT5 OVLF:Overload Flag*/
+    CAN_CH_ERR_FLAG_BLF,        /*BIT6 BLF:Bus Lock Flag*/
+    CAN_CH_ERR_FLAG_ALF,        /*BIT7 ALF:Arbitration-lost Flag*/
+    CAN_CH_ERR_FLAG_SERR,       /*BIT8 SERR:Stuff Error Flag*/
+    CAN_CH_ERR_FLAG_FERR,       /*BIT9 FERR:Form Error Flag*/
+    CAN_CH_ERR_FLAG_AERR,       /*BIT10 AERR:ACK Error Flag*/
+    CAN_CH_ERR_FLAG_CERR,       /*BIT11 CERR:CRC Error Flag*/
+    CAN_CH_ERR_FLAG_B1ERR,      /*BIT12 B1ERR:Recessive Bit Error Flag*/
+    CAN_CH_ERR_FLAG_B0ERR,      /*BIT13 B0ERR:Dominant Bit Error Flag*/
+    CAN_CH_ERR_FLAG_ADERR,      /*BIT14 ADERR:ACK Delimiter Error Flag*/
+    CAN_CH_ERR_FLAG_RESERVED,
+}CAN_CH_ERFL_e;
+
+
 //===============================================
 
 #define R_CLKC_RSCAN_DISABLE        0x00
@@ -847,6 +881,9 @@ extern void can_rx_fifo_buf_int_check(CAN_REG_TYP * can,
                                       
 unsigned char can_payload_calculate(unsigned char dlc);
 void can_reg_dump_log(void);
+
+void can_channel_error_register_dump(void);
+void can_channel_error_probe_after_init(void);
 
 unsigned char can_channel_error_interrupt_cbk(CAN_REG_TYP * can,CAN_CHANNEL_SEL_e channel);
 unsigned char can_global_error_interrupt_cbk(CAN_REG_TYP * can);

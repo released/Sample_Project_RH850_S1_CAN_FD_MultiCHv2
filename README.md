@@ -2,6 +2,72 @@
 Sample_Project_RH850_S1_CAN_FD_MultiCHv2
 
 
+update @ 2025/12/10
+
+1. Add define : ENABLE_CHANNEL_ERR_FLAG_DETECTION , 
+
+- add can_channel_error_register_dump , polling register under loop , when trig error flag
+
+ENABLE below #if , to check register log  (CxCTR,CxSTS,CxERFL)
+```c
+void can_channel_error_register_dump(void)
+{
+
+	...
+
+        /* dump reg*/
+        #if 0   // enable for register check
+
+	...
+
+}
+
+
+```
+
+- add can_channel_error_probe_after_init , put after CAN bus init , to detect error flag immediately after CAN bus init ready
+
+ENABLE below #if , to test CH0 , CH2
+```c
+void can_channel_error_probe_after_init(void)
+{
+	...
+    #if 0   // test CH0
+	
+
+    #if 1   // test CH2	
+	...
+}
+```
+
+2. error flag test condition : test channel 2 with PCAN , __SHORT CAN BUS CHANNEL 2 (ex : by tweezers)__
+
+when attempt to send CAN frame ( ex : digit 5)
+
+if enable polling log about dump register (CxCTR,CxSTS,CxERFL)
+
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/bus_err_ch2_1.jpg)
+
+
+if disable polling log about dump register (CxCTR,CxSTS,CxERFL) , only display error bit
+
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/bus_err_ch2_2.jpg)
+
+3. error flag test condition : test channel 1 , __without connect to any CAN BUS device__
+
+when attempt to send CAN frame ( ex : digit 1)
+
+if enable polling log about dump register (CxCTR,CxSTS,CxERFL)
+
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/bus_err_ch0_1.jpg)
+
+
+if disable polling log about dump register (CxCTR,CxSTS,CxERFL) , only display error bit
+
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/bus_err_ch0_2.jpg)
+
+
+
 update @ 2025/12/05
 
 1. Add define : ENABLE_USE_RAM_STORE_RX_DATA , 
@@ -10,21 +76,21 @@ update @ 2025/12/05
 
 - need to disable define : ENABLE_COMPLEX_LOG to see the variable in watch window
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/watch_window_0.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/watch_window_0.jpg)
 
 2. enable Access during the execution , Update display during the exection
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/watch_window_1.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/watch_window_1.jpg)
 
 3. need to modify section address layout , base on TARGET MCU available RAM size
 
 - ex : RH850/F1KM-S1 , flash size 512K : Local RAM (Self) will be start at FEDF 0000
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/watch_window_2.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/watch_window_2.jpg)
 
 - modify section address , base on RH850/F1KM-S1 flash size 512K setting
 
-![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCH_CAN0_CAN2/blob/main/watch_window_3.jpg)
+![image](https://github.com/released/Sample_Project_RH850_S1_CAN_FD_MultiCHv2/blob/main/watch_window_3.jpg)
 
 
 update @ 2025/10/01

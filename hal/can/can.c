@@ -2913,7 +2913,7 @@ static void can_start(CAN_REG_TYP * can,CAN_CHANNEL_SEL_e channel)
     
 
     // CAN_REG_SET(cst[channel].CxCTR.UINT32,CAN_REG_BIT23,CAN_REG_LENGTH_1); //ERRD
-    CAN_REG_SET(cst[channel].CxCTR.UINT32,CAN_REG_BIT8,CAN_REG_LENGTH_1); //BEIE
+    // CAN_REG_SET(cst[channel].CxCTR.UINT32,CAN_REG_BIT8,CAN_REG_LENGTH_1); //BEIE
     // CAN_REG_SET(cst[channel].CxCTR.UINT32,CAN_REG_BIT11,CAN_REG_LENGTH_1); //BOEIE
     // CAN_REG_SET(cst[channel].CxCTR.UINT32,CAN_REG_BIT12,CAN_REG_LENGTH_1); //BORIE
 
@@ -3277,6 +3277,10 @@ void can_init(void)
     can_syncp(&RCFDC0);
 
     can_reg_dump_log();
+
+    #if defined (ENABLE_CHANNEL_ERR_FLAG_DETECTION)
+    can_channel_error_probe_after_init();
+    #endif
 
     #else   // single
 
@@ -4005,6 +4009,142 @@ static void can_tx_normal_buffer1_set(CAN_BUS_HANDLE *p,CAN_FD_MODE_e mode,unsig
     counter++;
 }
 
+/*
+    RCFDCnCFDCmERFL  
+    0: No ____ is detected.
+    1: ____ is detected. 
+    
+    BIT15 -   
+    BIT14 ADERR:ACK Delimiter Error Flag
+    BIT13 B0ERR:Dominant Bit Error Flag
+    BIT12 B1ERR:Recessive Bit Error Flag
+    BIT11 CERR:CRC Error Flag
+    BIT10 AERR:ACK Error Flag
+    BIT9 FERR:Form Error Flag
+    BIT8 SERR:Stuff Error Flag
+    BIT7 ALF:Arbitration-lost Flag 
+    BIT6 BLF:Bus Lock Flag 
+    BIT5 OVLF:Overload Flag
+    BIT4 BORF:Bus Off Recovery Flag
+    BIT3 BOEF:Bus Off Entry Flag
+    BIT2 EPF:Error Passive Flag
+    BIT1 EWF:Error Warning Flag
+    BIT0 BEF:Bus Error Flag
+*/
+
+void can_channel_error_register_dump(void)
+{
+    const CAN_CHANNEL_SEL_e channels[] = 
+    {
+        can_bus_parameter_ch0.CAN_CH,
+        can_bus_parameter_ch2.CAN_CH
+    };
+
+    CAN_REG_TYP * can = &RCFDC0;
+    volatile struct CHANNEL_SET *cst = (volatile struct CHANNEL_SET *)(&can->CFDC0NCFG.UINT32);
+
+    uint32_t ctr, sts, erfl;
+    uint8_t b;
+    uint8_t ch_idx;
+    CAN_CHANNEL_SEL_e channel;
+
+    for (ch_idx = 0U; ch_idx < (sizeof(channels)/sizeof(channels[0])); ch_idx++)
+    {
+        channel = channels[ch_idx];
+
+        /* snapshot registers */
+        ctr  = cst[channel].CxCTR.UINT32;
+        sts  = cst[channel].CxSTS.UINT32;
+        erfl = cst[channel].CxERFL.UINT32;
+
+        /* dump reg*/
+        #if 0   // enable for register check
+        tiny_printf("[CAN CH%d] CTR=0x%08X, STS=0x%08X, ERFL=0x%08X\r\n",
+                    (int)channel,
+                    (unsigned int)ctr,
+                    (unsigned int)sts,
+                    (unsigned int)erfl);
+        #else   // to by pass warning
+        ctr = ctr;
+        sts = sts;
+        #endif
+
+        /* skip if no error */
+        if (erfl == 0U)
+        {
+            continue;
+        }
+
+        /* decode & clear error bits */
+        for (b = 0U; b <= 14U; b++)
+        {
+            if ((erfl & (1UL << b)) != 0UL)
+            {
+                /* Write-0-to-Clear (W0C) */
+                CAN_W0C_CLR1(cst[channel].CxERFL.UINT32, b);
+
+                tiny_printf("[CAN CH%d ERROR] bit %u = %s\r\n",
+                            (int)channel,
+                            (unsigned int)b,
+                            can_ch_err_flag[b]);
+            }
+        }
+    }
+}
+
+void can_channel_error_probe_after_init(void)
+{
+    unsigned int transmit_buffer_id;
+    unsigned int p_number;
+    unsigned char txbuffer[8];
+    unsigned char len;
+    unsigned char i;
+
+    #if 0   // test CH0
+    #if defined (ENABLE_CAN0)
+    /* ------------------------
+     * Channel 0:
+     * ------------------------ */
+    transmit_buffer_id = 0x205U;
+    p_number          = 0U;
+    len               = 64U;
+
+    for (i = 0U; i < len; i++)
+    {
+        txbuffer[i] = (unsigned char)(0xA0U + i);   // dummy data
+    }
+
+    can_tx_no_normal_buffer_set(&can_bus_handle_ch0,can_bus_parameter_ch0.CAN_MODE,p_number,transmit_buffer_id,txbuffer,len);
+    can_tx_buf_data_multi_send(&RCFDC0,&can_bus_handle_ch0.tx_handle[0],can_bus_parameter_ch0.CAN_CH,1,len);
+
+    tiny_printf("[CAN0][ERR-PROBE] TX ID=0x%03X\r\n", transmit_buffer_id);
+    #endif
+    #endif
+
+    #if 1   // test CH2
+    #if defined (ENABLE_CAN2)
+    /* ------------------------
+     * Channel 2:
+     * ------------------------ */
+    transmit_buffer_id = 0x405U;
+    p_number          = 0U;
+    len               = 8U;
+
+    for (i = 0U; i < len; i++)
+    {
+        txbuffer[i] = (unsigned char)(0xE0U + i);   // dummy data
+    }
+
+    can_tx_no_normal_buffer_set(&can_bus_handle_ch2,can_bus_parameter_ch2.CAN_MODE,p_number,transmit_buffer_id,txbuffer,len);
+    can_tx_buf_data_multi_send(&RCFDC0,&can_bus_handle_ch2.tx_handle[0],can_bus_parameter_ch2.CAN_CH,1,len);
+
+    tiny_printf("[CAN2][ERR-PROBE] TX ID=0x%03X\r\n", transmit_buffer_id);
+#endif
+    #endif
+
+}
+
+
 // unsigned char can_global_error_interrupt_cbk(CAN_REG_TYP * can)
 // {
 
@@ -4034,11 +4174,12 @@ unsigned char can_channel_error_interrupt_cbk(CAN_REG_TYP * can,CAN_CHANNEL_SEL_
     */
    
     volatile struct CHANNEL_SET *cst= (volatile struct CHANNEL_SET *)(&can->CFDC0NCFG.UINT32);
-    uint32_t erfl = cst[channel].CxERFL.UINT32;
+    uint32_t erfl;
     uint8_t b = 0;
 
     for (b = 0; b <= 14; ++b) 
     {
+        erfl = cst[channel].CxERFL.UINT32;
         if (erfl & (1u << b)) 
         {
             CAN_W0C_CLR1(cst[channel].CxERFL.UINT32, b);
@@ -4062,11 +4203,12 @@ unsigned char can_global_error_interrupt_cbk(CAN_REG_TYP * can)
         BIT0 DEF:DLC Error Flag   
     */
 
-    uint32_t erfl = can->CFDGERFL.UINT32;
+    uint32_t erfl = 0;
     uint8_t b = 0;
 
     for (b = 0; b <= 3; ++b) 
     {
+        erfl = can->CFDGERFL.UINT32;
         if (erfl & (1u << b)) 
         {
             CAN_W0C_CLR1(can->CFDGERFL.UINT32, b);
@@ -4955,6 +5097,10 @@ void can_tx_process(void)
 
 void can_fd_loop_process(void)
 {
+    #if defined (ENABLE_CHANNEL_ERR_FLAG_DETECTION)
+    can_channel_error_register_dump();
+    #endif
+
     #if defined (CAN_RX_POLLING)
     can_fd_receive_buffer_decode_all_channel();
     #endif
